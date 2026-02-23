@@ -16,16 +16,23 @@ Privatsphäre: Alle Einstellungen werden ausschließlich via Local Storage in de
 
 ### Nutzung
 
-Du kannst die Seite auf zwei Arten nutzen:
+Du kannst die Seite auf zwei Arten nutzen: Entweder über GitHub Pages oder indem du sie selbst hostest. Für den Einstieg empfehle ich die GitHub-Pages Seite:
 
-Entweder du nutzt die Github-Pages Seite oder du hostest sie selber.
-Für den Einstieg empfehle ich die Github-Pages Seite
+👉 https://paul-schram.github.io/browser-launcher/
 
-https://paul-schram.github.io/browser-launcher/
+### 1. Als "Neuer Tab" Seite einrichten (Wichtig)
 
-##### Als Startseite festlegen:
+Moderne Browser erlauben es aus Sicherheitsgründen meist nicht, die "Neuer Tab"-Seite direkt über die Einstellungen zu ändern. Daher ist die Nutzung einer kleinen Erweiterung erforderlich:
 
-Kopiere die [URL](https://paul-schram.github.io/browser-launcher/) und trage sie in deinem Browser als Startseite ein, damit sie sich bei jedem Start automatisch öffnet:
+Installiere eine Erweiterung wie "Custom New Tab URL" (für Chrome/Edge)
+
+Trage in den Optionen der Erweiterung die URL ein: https://paul-schram.github.io/browser-launcher/
+
+Bestätige beim ersten Öffnen eines neuen Tabs, dass du die Änderung beibehalten möchtest.
+
+### 2. Als Startseite festlegen
+
+Kopiere die URL und trage sie in deinem Browser als Startseite ein, damit sie sich beim Browserstart automatisch öffnet:
 
 Chrome: Einstellungen > Erscheinungsbild > Schaltfläche "Startseite" anzeigen > Deine URL eingeben.
 
@@ -37,8 +44,10 @@ Hinweis: Da die Daten im Local Storage deines Browsers gespeichert werden, bleib
 
 ### Technologien
 
-HTML5 / CSS3 (Custom Properties & Animations),
-Tailwind CSS (via CDN),
-FontAwesome Icons (via CDN),
-Vanilla JavaScript (ES6+)
+HTML5 / CSS3 (Custom Properties & Animations)
 
+Tailwind CSS (via CDN)
+
+FontAwesome Icons (via CDN)
+
+Vanilla JavaScript (ES6+)
