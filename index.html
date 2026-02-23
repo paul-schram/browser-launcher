@@ -350,8 +350,18 @@
     ];
 
     const engines = {
-        google: { name: 'Google', url: 'https://www.google.com/search?q=', icon: 'fa-brands fa-google' },
-        startpage: { name: 'Startpage', url: 'https://www.startpage.com/do/search?query=', icon: 'fa-solid fa-shield-halved' }
+        google: {
+            name: 'Google',
+            url: 'https://www.google.com/search?q=',
+            icon: 'fa-brands fa-google',
+            placeholder: 'Suchen oder URL eingeben...'
+        },
+        startpage: {
+            name: 'Startpage',
+            url: 'https://www.startpage.com/do/search?query=',
+            icon: 'fa-solid fa-shield-halved',
+            placeholder: 'Privat suchen oder URL eingeben...'
+        }
     };
 
     let currentEngine = localStorage.getItem('search_engine') || 'google';
@@ -371,6 +381,8 @@
         const engine = engines[currentEngine];
         document.getElementById('engine-icon').className = engine.icon;
         document.getElementById('engine-label').textContent = engine.name;
+        // Aktualisiert den Placeholder Text dynamisch
+        searchInput.placeholder = engine.placeholder;
     }
 
     engineSwitch.addEventListener('click', () => {
