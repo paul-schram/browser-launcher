@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startseite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+        :root {
+            --bg-color: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --accent-color: #3b82f6;
+            --text-main: #f9fafb;
+            --text-dim: #9ca3af;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.07) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
+            filter: blur(80px);
+            animation: pulse 10s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 650px;
+            padding: 2rem;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-box {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.15);
+            transform: scale(1.01);
+        }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            width: 100%;
+            font-size: 1.15rem;
+            padding: 8px 16px;
+        }
+
+        .enter-badge {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .quick-links {
+            margin-top: 3.5rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .link-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dim);
+            transition: all 0.25s ease, transform 0s;
+            padding: 1rem;
+            border-radius: 20px;
+            position: relative;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .link-item:active { cursor: grabbing; }
+        .link-item.dragging { opacity: 0.4; transform: scale(0.9); background: rgba(255, 255, 255, 0.05); }
+
+        .link-item:hover:not(.dragging) {
+            color: var(--text-main);
+            background: var(--card-bg);
+            transform: translateY(-5px);
+        }
+
+        .icon-wrapper {
+            width: 52px;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            font-size: 1.4rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+        }
+
+        .clock {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            font-size: 1.4rem;
+            font-weight: 300;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        .greeting {
+            font-size: 2.8rem;
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            letter-spacing: -1px;
+        }
+
+        .edit-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .edit-btn:hover { color: var(--text-main); border-color: var(--accent-color); transform: rotate(45deg); }
+
+        .edit-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .edit-modal {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 550px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .input-group { margin-bottom: 1.25rem; text-align: left; }
+        .input-group label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem; letter-spacing: 1px; }
+
+        .edit-input-container {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 45px; /* Einheitliche Höhe für Alignment */
+        }
+
+        .input-prefix { padding: 0 0 0 15px; color: var(--text-dim); font-size: 0.9rem; }
+
+        .edit-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 0 15px;
+            color: white;
+            outline: none;
+            font-size: 0.9rem;
+            height: 100%;
+        }
+
+        .edit-input-container:focus-within { border-color: var(--accent-color); }
+
+        .save-btn {
+            background: var(--accent-color);
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        /* Icon Picker Styles */
+        .icon-picker-btn {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .icon-picker-btn:hover { border-color: var(--accent-color); background: rgba(59, 130, 246, 0.1); }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: #0f0f0f;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .icon-option {
+            font-size: 1.2rem;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .icon-option:hover { background: var(--accent-color); color: white; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div id="clock" class="clock">00:00</div>
+
+<main class="main-container">
+    <h1 id="greeting" class="greeting">Willkommen</h1>
+
+    <form action="https://www.google.com/search" method="GET">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass text-gray-500"></i>
+            <input
+                    id="search-input"
+                    type="text"
+                    name="q"
+                    class="search-input"
+                    placeholder="Suche im Web..."
+                    autocomplete="off"
+                    autofocus
+            >
+            <span id="search-badge" class="enter-badge hidden md:block text-[10px] opacity-40 border border-white/20 px-1.5 py-0.5 rounded">/</span>
+        </div>
+    </form>
+
+    <div class="quick-links" id="links-container"></div>
+</main>
+
+<button class="edit-btn" onclick="toggleEditModal()" title="Verknüpfungen bearbeiten">
+    <i class="fa-solid fa-gear"></i>
+</button>
+
+<div id="edit-overlay" class="edit-overlay">
+    <div class="edit-modal">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-medium">Shortcuts bearbeiten</h2>
+            <button onclick="toggleEditModal()" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div id="edit-list" class="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar"></div>
+
+        <button onclick="saveLinks()" class="save-btn hover:opacity-90 transition-opacity">Speichern & Schließen</button>
+    </div>
+</div>
+
+<script>
+    const iconDatabase = [
+        "fa-brands fa-github", "fa-brands fa-youtube", "fa-brands fa-reddit", "fa-solid fa-bolt",
+        "fa-brands fa-twitter", "fa-brands fa-instagram", "fa-brands fa-facebook", "fa-brands fa-linkedin",
+        "fa-solid fa-envelope", "fa-solid fa-calendar", "fa-solid fa-cloud", "fa-solid fa-code",
+        "fa-solid fa-database", "fa-solid fa-globe", "fa-solid fa-image", "fa-solid fa-music",
+        "fa-solid fa-video", "fa-solid fa-terminal", "fa-solid fa-shop", "fa-solid fa-gamepad",
+        "fa-solid fa-gear", "fa-solid fa-user", "fa-solid fa-house", "fa-solid fa-magnifying-glass",
+        "fa-brands fa-twitch", "fa-brands fa-discord", "fa-brands fa-spotify", "fa-brands fa-amazon"
+    ];
+
+    const defaultLinks = [
+        { name: "GitHub", url: "https://github.com", icon: "fa-brands fa-github" },
+        { name: "YouTube", url: "https://youtube.com", icon: "fa-brands fa-youtube" },
+        { name: "Reddit", url: "https://reddit.com", icon: "fa-brands fa-reddit" },
+        { name: "ChatGPT", url: "https://chatgpt.com", icon: "fa-solid fa-bolt" }
+    ];
+
+    let links = JSON.parse(localStorage.getItem('browser_shortcuts')) || defaultLinks;
+
+    function renderLinks() {
+        const container = document.getElementById('links-container');
+        container.innerHTML = '';
+        links.forEach((link, index) => {
+            const a = document.createElement('a');
+            a.href = link.url;
+            a.className = 'link-item';
+            a.draggable = true;
+            a.dataset.index = index;
+            a.innerHTML = `<div class="icon-wrapper"><i class="${link.icon}"></i></div><span class="text-xs font-medium uppercase tracking-wider">${link.name}</span>`;
+            a.addEventListener('dragstart', handleDragStart);
+            a.addEventListener('dragover', handleDragOver);
+            a.addEventListener('drop', handleDrop);
+            a.addEventListener('dragend', handleDragEnd);
+            container.appendChild(a);
+        });
+    }
+
+    let draggedItemIndex = null;
+    function handleDragStart(e) { draggedItemIndex = this.dataset.index; this.classList.add('dragging'); }
+    function handleDragOver(e) { e.preventDefault(); }
+    function handleDrop(e) {
+        e.preventDefault();
+        const targetIndex = this.dataset.index;
+        if (draggedItemIndex !== null && draggedItemIndex !== targetIndex) {
+            const movedItem = links.splice(draggedItemIndex, 1)[0];
+            links.splice(targetIndex, 0, movedItem);
+            localStorage.setItem('browser_shortcuts', JSON.stringify(links));
+            renderLinks();
+        }
+    }
+    function handleDragEnd() { this.classList.remove('dragging'); }
+
+    function cleanUrlForInput(url) { return url.replace(/^https?:\/\//, ''); }
+
+    function renderEditList() {
+        const list = document.getElementById('edit-list');
+        list.innerHTML = links.map((link, index) => `
+                <div class="mb-8 p-4 bg-white/5 rounded-xl border border-white/5">
+                    <div class="text-xs font-bold text-blue-400 mb-3">SHORTCUT ${index + 1}</div>
+
+                    <div class="flex items-end mb-4">
+                        <div class="flex flex-col">
+                            <label class="text-[10px] uppercase text-gray-500 block mb-1">Icon</label>
+                            <div class="icon-picker-btn" onclick="toggleIconPicker(${index})" id="current-icon-${index}">
+                                <i class="${link.icon}"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-[10px] uppercase text-gray-500 block mb-1">Anzeigename</label>
+                            <div class="edit-input-container">
+                                <input type="text" class="edit-input" value="${link.name}" oninput="updateTempLink(${index}, 'name', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="picker-container-${index}" class="hidden mb-4">
+                        <div class="icon-grid custom-scrollbar">
+                            ${iconDatabase.map(icon => `<div class="icon-option" onclick="selectIcon(${index}, '${icon}')"><i class="${icon}"></i></div>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>URL (Domain)</label>
+                        <div class="edit-input-container">
+                            <span class="input-prefix">https://</span>
+                            <input type="text" class="edit-input" style="padding-left: 5px;" placeholder="z.B. google.com" value="${cleanUrlForInput(link.url)}" oninput="updateTempUrl(${index}, this.value)">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function toggleIconPicker(index) {
+        const picker = document.getElementById(`picker-container-${index}`);
+        const isHidden = picker.classList.contains('hidden');
+        document.querySelectorAll('[id^="picker-container-"]').forEach(p => p.classList.add('hidden'));
+        if (isHidden) picker.classList.remove('hidden');
+    }
+
+    function selectIcon(index, iconClass) {
+        links[index].icon = iconClass;
+        document.getElementById(`current-icon-${index}`).innerHTML = `<i class="${iconClass}"></i>`;
+        document.getElementById(`picker-container-${index}`).classList.add('hidden');
+    }
+
+    function updateTempLink(index, key, value) { links[index][key] = value; }
+    function updateTempUrl(index, value) {
+        const clean = value.replace(/^https?:\/\//, '').trim();
+        links[index].url = clean ? `https://${clean}` : '';
+    }
+
+    function saveLinks() {
+        localStorage.setItem('browser_shortcuts', JSON.stringify(links));
+        renderLinks();
+        toggleEditModal();
+    }
+
+    function toggleEditModal() {
+        const overlay = document.getElementById('edit-overlay');
+        const isVisible = overlay.style.display === 'flex';
+        overlay.style.display = isVisible ? 'none' : 'flex';
+        if (!isVisible) renderEditList();
+    }
+
+    // Suchleiste Logik
+    const searchInput = document.getElementById('search-input');
+    const searchBadge = document.getElementById('search-badge');
+
+    searchInput.addEventListener('input', (e) => {
+        if (e.target.value.length > 0) {
+            searchBadge.textContent = 'ENTER';
+            searchBadge.classList.remove('opacity-40');
+            searchBadge.classList.add('opacity-100', 'border-blue-500/50', 'text-blue-400');
+        } else {
+            searchBadge.textContent = '/';
+            searchBadge.classList.add('opacity-40');
+            searchBadge.classList.remove('opacity-100', 'border-blue-500/50', 'text-blue-400');
+        }
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== searchInput) {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('clock').textContent = `${hours}:${minutes}`;
+
+        const hour = now.getHours();
+        const greetingEl = document.getElementById('greeting');
+        if (hour < 12) greetingEl.textContent = "Guten Morgen";
+        else if (hour < 18) greetingEl.textContent = "Guten Tag";
+        else greetingEl.textContent = "Guten Abend";
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+    renderLinks();
+</script>
+</body>
+</html>
