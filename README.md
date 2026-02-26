@@ -2,15 +2,13 @@
 
 ### Features
 
-Sofort einsatzbereit: Keine Installation oder Downloads nötig – einfach die URL aufrufen.
-
 Drag & Drop: Sortiere deine Shortcuts intuitiv per Maus. Die Reihenfolge wird automatisch gespeichert.
 
-Anpassbare Shortcuts: Bearbeite Namen, URLs und Icons direkt in der App. Das Protokoll (https://) wird automatisch ergänzt.
+Anpassbare Shortcuts: Bearbeite Namen, URLs und Icons direkt in der App.
 
-Icon-Datenbank: Wähle aus einer kuratierten Liste beliebter Icons (FontAwesome).
+Icon-Datenbank: Wähle aus einer Liste beliebter Icons (FontAwesome).
 
-Smart Search: Integrierte Google-Suche mit visuellem Feedback (Enter-Badge) und Hotkey-Support (/).
+Smart Search: Integrierte Google- und Startpage Suche mit visuellem Feedback (Enter-Badge) und Hotkey-Support (/).
 
 Privatsphäre: Alle Einstellungen werden ausschließlich via Local Storage in deinem eigenen Browser gespeichert.
 
