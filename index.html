@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startseite</title>
-    <!-- WebStorm: CDN links are intentional for GitHub Pages deployment -->
+    <!-- CSS and Frameworks -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -89,7 +89,39 @@
             padding: 8px 12px;
         }
 
-        /* Engine Switch Styles */
+        #search-badge {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 32px;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+        }
+
+        .badge-slash { display: block; }
+        .badge-enter { display: none; }
+
+        .search-box:focus-within #search-badge {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .search-box:focus-within .badge-slash { display: none; }
+        .search-box:focus-within .badge-enter {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: slideIn 0.2s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(5px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
         .engine-switch {
             cursor: pointer;
             padding: 6px 12px;
@@ -229,7 +261,6 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        /* Edit Modal Components */
         .input-group { margin-bottom: 1.25rem; text-align: left; }
         .input-group label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem; letter-spacing: 1px; }
 
@@ -308,7 +339,12 @@
                     autocomplete="off"
                     autofocus
             >
-            <span id="search-badge" class="hidden md:block text-[10px] opacity-40 border border-white/20 px-1.5 py-0.5 rounded">/</span>
+            <span id="search-badge" class="hidden md:flex items-center text-[10px] px-2 py-1 rounded-lg">
+                    <span class="badge-slash font-bold">/</span>
+                    <span class="badge-enter">
+                        <span class="font-bold tracking-tighter">ENTER</span>
+                    </span>
+                </span>
         </div>
     </form>
 
@@ -340,6 +376,7 @@
 </div>
 
 <script>
+    // Icons
     const iconDatabase = [
         "fa-brands fa-github", "fa-brands fa-youtube", "fa-brands fa-reddit", "fa-solid fa-bolt",
         "fa-brands fa-twitter", "fa-brands fa-instagram", "fa-brands fa-facebook", "fa-brands fa-linkedin",
@@ -354,7 +391,7 @@
             name: 'Google',
             url: 'https://www.google.com/search?q=',
             icon: 'fa-brands fa-google',
-            placeholder: 'Suchen oder URL eingeben...'
+            placeholder: 'Suche oder URL eingeben...'
         },
         startpage: {
             name: 'Startpage',
@@ -364,6 +401,7 @@
         }
     };
 
+    // State
     let currentEngine = localStorage.getItem('search_engine') || 'google';
     let links = JSON.parse(localStorage.getItem('browser_shortcuts')) || [
         { name: "GitHub", url: "https://github.com", icon: "fa-brands fa-github" },
@@ -372,6 +410,11 @@
         { name: "ChatGPT", url: "https://chatgpt.com", icon: "fa-solid fa-bolt" }
     ];
 
+    // Sanitize Icon: Only allow standard FontAwesome naming scheme
+    function sanitizeIcon(iconClass) {
+        return /^[a-z0-9\s-]+$/i.test(iconClass) ? iconClass : 'fa-solid fa-link';
+    }
+
     const engineSwitch = document.getElementById('engine-switch');
     const searchForm = document.getElementById('search-form');
     const searchInput = document.getElementById('search-input');
@@ -379,9 +422,11 @@
 
     function updateEngineUI() {
         const engine = engines[currentEngine];
-        document.getElementById('engine-icon').className = engine.icon;
-        document.getElementById('engine-label').textContent = engine.name;
-        // Aktualisiert den Placeholder Text dynamisch
+        const iconEl = document.getElementById('engine-icon');
+        const labelEl = document.getElementById('engine-label');
+
+        if(iconEl) iconEl.className = sanitizeIcon(engine.icon);
+        if(labelEl) labelEl.textContent = engine.name;
         searchInput.placeholder = engine.placeholder;
     }
 
@@ -396,6 +441,7 @@
         const query = searchInput.value.trim();
         if (!query) return;
 
+        // Simple URL Check
         const urlPattern = /^(https?:\/\/)?([\w\d-]+\.)+[\w-]+(\/.*)?$|^localhost(:\d+)?(\/.*)?$/i;
 
         if (urlPattern.test(query)) {
@@ -407,33 +453,43 @@
         }
     });
 
-    // Keybindings
-    window.addEventListener('keydown', (e) => {
-        if (e.key === '/' && document.activeElement !== searchInput) {
-            e.preventDefault();
-            searchInput.focus();
-        }
-    });
-
     function updateClock() {
         const now = new Date();
-        document.getElementById('clock').textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        const clockEl = document.getElementById('clock');
+        const greetingEl = document.getElementById('greeting');
+
+        if (clockEl) clockEl.textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
         const hour = now.getHours();
         const greeting = hour < 12 ? "Guten Morgen" : hour < 18 ? "Guten Tag" : "Guten Abend";
-        document.getElementById('greeting').textContent = greeting;
+        if (greetingEl) greetingEl.textContent = greeting;
     }
 
-    // --- Shortcuts Rendering ---
     function renderLinks() {
         const container = document.getElementById('links-container');
+        if (!container) return;
         container.innerHTML = '';
+
         links.forEach((link, index) => {
             const a = document.createElement('a');
             a.href = link.url;
             a.className = 'link-item';
             a.draggable = true;
             a.dataset.index = index;
-            a.innerHTML = `<div class="icon-wrapper"><i class="${link.icon}"></i></div><span class="text-xs font-medium uppercase tracking-wider">${link.name}</span>`;
+
+            const iconWrapper = document.createElement('div');
+            iconWrapper.className = 'icon-wrapper';
+
+            const i = document.createElement('i');
+            i.className = sanitizeIcon(link.icon);
+
+            const label = document.createElement('span');
+            label.className = 'text-xs font-medium uppercase tracking-wider';
+            label.textContent = link.name; // textContent is safe
+
+            iconWrapper.appendChild(i);
+            a.appendChild(iconWrapper);
+            a.appendChild(label);
 
             a.addEventListener('dragstart', handleDragStart);
             a.addEventListener('dragover', handleDragOver);
@@ -444,7 +500,6 @@
         });
     }
 
-    // --- Drag & Drop ---
     let draggedItemIndex = null;
     function handleDragStart() { draggedItemIndex = this.dataset.index; this.classList.add('dragging'); }
     function handleDragOver(e) { e.preventDefault(); }
@@ -460,7 +515,6 @@
     }
     function handleDragEnd() { this.classList.remove('dragging'); }
 
-    // --- Edit Modal Logic ---
     function toggleEditModal() {
         const overlay = document.getElementById('edit-overlay');
         const isVisible = overlay.style.display === 'flex';
@@ -468,46 +522,121 @@
         if (!isVisible) renderEditList();
     }
 
-    function cleanUrlForInput(url) { return url.replace(/^https?:\/\//, ''); }
+    function cleanUrlForInput(url) {
+        return url.replace(/^https?:\/\//, '').replace(/^javascript:/, '');
+    }
 
     function renderEditList() {
-        editList.innerHTML = links.map((link, index) => `
-                <div class="mb-6 p-4 bg-white/5 rounded-xl border border-white/5">
-                    <div class="flex justify-between items-center mb-3">
-                         <span class="text-xs font-bold text-blue-400">SHORTCUT ${index + 1}</span>
-                         <button onclick="removeLink(${index})" class="text-red-500/50 hover:text-red-500 text-[10px] uppercase font-bold">Entfernen</button>
-                    </div>
+        editList.innerHTML = '';
 
-                    <div class="flex items-end mb-4">
-                        <div class="flex flex-col">
-                            <label class="text-[10px] uppercase text-gray-500 block mb-1">Icon</label>
-                            <div class="icon-picker-btn" onclick="toggleIconPicker(${index})" id="current-icon-${index}">
-                                <i class="${link.icon}"></i>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <label class="text-[10px] uppercase text-gray-500 block mb-1">Anzeigename</label>
-                            <div class="edit-input-container">
-                                <input type="text" class="edit-input" value="${link.name}" oninput="updateTempLink(${index}, 'name', this.value)">
-                            </div>
-                        </div>
-                    </div>
+        links.forEach((link, index) => {
+            const item = document.createElement('div');
+            item.className = 'mb-6 p-4 bg-white/5 rounded-xl border border-white/5';
 
-                    <div id="picker-container-${index}" class="hidden mb-4">
-                        <div class="icon-grid custom-scrollbar">
-                            ${iconDatabase.map(icon => `<div class="icon-option" onclick="selectIcon(${index}, '${icon}')"><i class="${icon}"></i></div>`).join('')}
-                        </div>
-                    </div>
+            const header = document.createElement('div');
+            header.className = 'flex justify-between items-center mb-3';
 
-                    <div class="input-group">
-                        <label>URL (Domain)</label>
-                        <div class="edit-input-container">
-                            <span class="input-prefix">https://</span>
-                            <input type="text" class="edit-input" style="padding-left: 5px;" placeholder="z.B. google.com" value="${cleanUrlForInput(link.url)}" oninput="updateTempUrl(${index}, this.value)">
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            const badge = document.createElement('span');
+            badge.className = 'text-xs font-bold text-blue-400';
+            badge.textContent = `SHORTCUT ${index + 1}`;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'text-red-500/50 hover:text-red-500 text-[10px] uppercase font-bold';
+            removeBtn.textContent = 'Entfernen';
+            removeBtn.onclick = () => removeLink(index);
+
+            header.appendChild(badge);
+            header.appendChild(removeBtn);
+            item.appendChild(header);
+
+            const row1 = document.createElement('div');
+            row1.className = 'flex items-end mb-4';
+
+            // Icon Column
+            const iconCol = document.createElement('div');
+            iconCol.className = 'flex flex-col';
+            const iconLabel = document.createElement('label');
+            iconLabel.className = 'text-[10px] uppercase text-gray-500 block mb-1';
+            iconLabel.textContent = 'Icon';
+            const pickerBtn = document.createElement('div');
+            pickerBtn.className = 'icon-picker-btn';
+            pickerBtn.id = `current-icon-${index}`;
+            const currentIconI = document.createElement('i');
+            currentIconI.className = sanitizeIcon(link.icon);
+            pickerBtn.appendChild(currentIconI);
+            pickerBtn.onclick = () => toggleIconPicker(index);
+
+            iconCol.appendChild(iconLabel);
+            iconCol.appendChild(pickerBtn);
+
+            // Name Column
+            const nameCol = document.createElement('div');
+            nameCol.className = 'flex-1 ml-4';
+            const nameLabel = document.createElement('label');
+            nameLabel.className = 'text-[10px] uppercase text-gray-500 block mb-1';
+            nameLabel.textContent = 'Anzeigename';
+            const nameInputContainer = document.createElement('div');
+            nameInputContainer.className = 'edit-input-container';
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'edit-input';
+            nameInput.value = link.name;
+            nameInput.oninput = (e) => updateTempLink(index, 'name', e.target.value);
+
+            nameInputContainer.appendChild(nameInput);
+            nameCol.appendChild(nameLabel);
+            nameCol.appendChild(nameInputContainer);
+
+            row1.appendChild(iconCol);
+            row1.appendChild(nameCol);
+            item.appendChild(row1);
+
+            // Picker Container
+            const pickerContainer = document.createElement('div');
+            pickerContainer.id = `picker-container-${index}`;
+            pickerContainer.className = 'hidden mb-4';
+            const grid = document.createElement('div');
+            grid.className = 'icon-grid custom-scrollbar';
+
+            iconDatabase.forEach(iconClass => {
+                const opt = document.createElement('div');
+                opt.className = 'icon-option';
+                const optI = document.createElement('i');
+                optI.className = iconClass;
+                opt.appendChild(optI);
+                opt.onclick = () => selectIcon(index, iconClass);
+                grid.appendChild(opt);
+            });
+
+            pickerContainer.appendChild(grid);
+            item.appendChild(pickerContainer);
+
+            // URL Group
+            const urlGroup = document.createElement('div');
+            urlGroup.className = 'input-group';
+            const urlLabel = document.createElement('label');
+            urlLabel.textContent = 'URL (Domain)';
+            const urlInputContainer = document.createElement('div');
+            urlInputContainer.className = 'edit-input-container';
+            const prefix = document.createElement('span');
+            prefix.className = 'input-prefix';
+            prefix.textContent = 'https://';
+            const urlInput = document.createElement('input');
+            urlInput.type = 'text';
+            urlInput.className = 'edit-input';
+            urlInput.style.paddingLeft = '5px';
+            urlInput.placeholder = 'z.B. google.com';
+            urlInput.value = cleanUrlForInput(link.url);
+            urlInput.oninput = (e) => updateTempUrl(index, e.target.value);
+
+            urlInputContainer.appendChild(prefix);
+            urlInputContainer.appendChild(urlInput);
+            urlGroup.appendChild(urlLabel);
+            urlGroup.appendChild(urlInputContainer);
+            item.appendChild(urlGroup);
+
+            editList.appendChild(item);
+        });
     }
 
     function toggleIconPicker(index) {
@@ -519,20 +648,27 @@
 
     function selectIcon(index, iconClass) {
         links[index].icon = iconClass;
-        document.getElementById(`current-icon-${index}`).innerHTML = `<i class="${iconClass}"></i>`;
-        document.getElementById(`picker-container-${index}`).classList.add('hidden');
+        const btn = document.getElementById(`current-icon-${index}`);
+        if (btn) {
+            btn.innerHTML = '';
+            const i = document.createElement('i');
+            i.className = sanitizeIcon(iconClass);
+            btn.appendChild(i);
+        }
+        const pc = document.getElementById(`picker-container-${index}`);
+        if (pc) pc.classList.add('hidden');
     }
 
     function updateTempLink(index, key, value) { links[index][key] = value; }
     function updateTempUrl(index, value) {
-        const clean = value.replace(/^https?:\/\//, '').trim();
+        // Force block javascript: and data: URIs
+        const clean = value.replace(/^(javascript:|data:)/i, '').replace(/^https?:\/\//, '').trim();
         links[index].url = clean ? `https://${clean}` : '';
     }
 
     function addNewLink() {
         links.push({ name: "Neu", url: "https://", icon: "fa-solid fa-link" });
         renderEditList();
-        // Timeout to wait for DOM update
         setTimeout(() => {
             editList.scrollTo({ top: editList.scrollHeight, behavior: 'smooth' });
         }, 50);
@@ -548,6 +684,13 @@
         renderLinks();
         toggleEditModal();
     }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== searchInput) {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
 
     // Init
     updateEngineUI();
